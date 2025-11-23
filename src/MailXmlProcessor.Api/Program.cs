@@ -1,15 +1,22 @@
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using MailXmlProcessor.Infrastructure.Persistence;
 
 using MailXmlProcessor.Application.Interfaces;
 using MailXmlProcessor.Application.Services;
 using MailXmlProcessor.Domain.Services;
 using MailXmlProcessor.Infrastructure.Services;
+using MailXmlProcessor.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddDbContext<MailXmlDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IEmailRepository, EmailRepository>();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -23,6 +30,25 @@ builder.Services.AddSwaggerGen(options =>
             Name = "Platform Engineering",
             Email = "developer@company.com"
         }
+    });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCorsPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+
+    options.AddPolicy("ProdCorsPolicy", policy =>
+    {
+        policy
+            .WithOrigins("https://domain.com") // TODO: use configured production domain
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 # endregion
@@ -43,6 +69,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DevCorsPolicy");
+}
+else
+{
+    app.UseCors("ProdCorsPolicy");
+}
 
 app.MapControllers();
 
