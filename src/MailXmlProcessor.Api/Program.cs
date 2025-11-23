@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using MailXmlProcessor.Infrastructure.Persistence;
+using MailXmlProcessor.Infrastructure.Configuration;
 
 using MailXmlProcessor.Application.Interfaces;
 using MailXmlProcessor.Application.Services;
@@ -11,6 +12,8 @@ using MailXmlProcessor.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Services
+builder.Services.Configure<ExtractionSettings>(
+    builder.Configuration.GetSection("ExtractionSettings"));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
