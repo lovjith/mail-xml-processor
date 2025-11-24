@@ -15,15 +15,10 @@ public class ExtractionController : ControllerBase
         _service = service;
     }
 
-    /// <summary>
-    /// Process multiple email bodies and extract structured XML and tagged data.
-    /// </summary>
-    /// <param name="request">Batch of email bodies.</param>
-    /// <returns>Structured extraction results.</returns>
     [HttpPost("process")]
-    [ProducesResponseType(typeof(List<ExtractionResult>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult Process([FromBody] EmailBatchRequest request)
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    public ActionResult<List<ExtractionResult>> Process([FromBody] EmailBatchRequest request)
     {
         if (request == null)
             return BadRequest("Request body is required.");

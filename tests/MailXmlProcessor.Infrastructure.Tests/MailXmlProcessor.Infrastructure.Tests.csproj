@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MailXmlProcessor.Infrastructure\MailXmlProcessor.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

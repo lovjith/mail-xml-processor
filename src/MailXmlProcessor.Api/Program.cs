@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("DevCorsPolicy", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:4200") // TODO: use configured dev frontend URL
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -71,7 +71,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("DevCorsPolicy");
@@ -81,6 +80,9 @@ else
     app.UseCors("ProdCorsPolicy");
 }
 
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
+    
 app.MapControllers();
 
 app.Run();
