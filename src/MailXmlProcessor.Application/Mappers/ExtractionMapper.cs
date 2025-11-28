@@ -10,9 +10,11 @@ public static class ExtractionMapper
         return new ExtractionResult
         {
             EmailIndex = email.Index,
+            Data = email.Data,
             ExtractedXmlBlocks = [.. email.XmlBlocks.Select(x => x.Content)],
             ExtractedJsonBlocks = email.JsonBlocks,
             TaggedFields = email.TaggedFields.ToDictionary(t => t.Tag, t => t.Value),
+            
             Errors = email.Errors.Select(e => e.Message).ToList()
         };
     }

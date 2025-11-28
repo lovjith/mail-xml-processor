@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Extensions.Options;
 using MailXmlProcessor.Infrastructure.Configuration;
+using MailXmlProcessor.Application.Extensions;
 
 namespace MailXmlProcessor.Infrastructure.Services;
 
@@ -15,9 +16,9 @@ public class EmailExtractionService(IOptions<ExtractionSettings> options) : IEma
     {
         var results = new List<ExtractedEmail>();
 
-        for (int i = 0; i < emails.Count; i++)
+        foreach (string email in emails)
         {
-            var threadParts = SplitEmailThread(emails[i]);
+            var threadParts = SplitEmailThread(email);
 
             foreach (var emailText in threadParts)
             {
@@ -80,13 +81,20 @@ public class EmailExtractionService(IOptions<ExtractionSettings> options) : IEma
                     errors.Add(new ExtractionError("Unhandled parsing exception", ex.Message));
                 }
 
-                results.Add(new ExtractedEmail(
+                var extracted = new ExtractedEmail(
                     results.Count,
                     xmlBlocks,
                     jsonBlocks,
                     taggedFields,
                     errors
-                ));            }
+                );
+
+                extracted.BuildExpenseData();
+                extracted.ApplyExtractionRules();
+                extracted.ApplyTaxCalculation(_settings.SalesTaxRate);
+
+                results.Add(extracted);          
+            }
         }
 
         return results;
